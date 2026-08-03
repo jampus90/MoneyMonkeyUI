@@ -1,0 +1,31 @@
+/* You can add global styles to this file, and also import other style files */
+
+// Design tokens extraídos de docs/design/mockup.pdf (Dashboard) — MVP-1 restyle da tela de login.
+:root {
+  --mm-color-bg: #f4ecdd;
+  --mm-color-surface: #ffffff;
+  --mm-color-input-bg: #faf6ec;
+  --mm-color-primary: #7c2242;
+  --mm-color-primary-dark: #601932;
+  --mm-color-accent: #a6883a;
+  --mm-color-text: #2b241d;
+  --mm-color-text-muted: #7d7568;
+  --mm-color-border: rgba(43, 36, 29, 0.12);
+  --mm-shadow-card: 0 12px 28px rgba(43, 36, 29, 0.1);
+  --mm-radius-card: 20px;
+  --mm-radius-field: 12px;
+  --mm-radius-pill: 999px;
+  --mm-font-family: 'Segoe UI', system-ui, -apple-system, Roboto, Helvetica, Arial, sans-serif;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: var(--mm-font-family);
+  background: var(--mm-color-bg);
+  color: var(--mm-color-text);
+}

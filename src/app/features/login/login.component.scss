@@ -1,0 +1,115 @@
+.login-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1rem;
+  background: var(--mm-color-bg);
+  box-sizing: border-box;
+}
+
+.login-card {
+  width: 100%;
+  max-width: 380px;
+  background: var(--mm-color-surface);
+  border-radius: var(--mm-radius-card);
+  box-shadow: var(--mm-shadow-card);
+  padding: 2.5rem 2rem;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 1.75rem;
+}
+
+.login-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+}
+
+.login-brand__mascot {
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 50%;
+  background: var(--mm-color-accent);
+  flex-shrink: 0;
+}
+
+.login-brand__name {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--mm-color-text);
+  letter-spacing: -0.01em;
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.125rem;
+}
+
+.login-form__title {
+  margin: 0;
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--mm-color-text);
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+
+.field label {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--mm-color-text-muted);
+}
+
+.field input {
+  font-family: inherit;
+  font-size: 1rem;
+  color: var(--mm-color-text);
+  background: var(--mm-color-input-bg);
+  border: 1px solid var(--mm-color-border);
+  border-radius: var(--mm-radius-field);
+  padding: 0.75rem 1rem;
+  box-sizing: border-box;
+
+  &:focus {
+    outline: none;
+    border-color: var(--mm-color-primary);
+    box-shadow: 0 0 0 3px rgba(124, 34, 66, 0.15);
+  }
+}
+
+.field-error,
+.form-error {
+  color: var(--mm-color-primary-dark);
+  font-size: 0.8125rem;
+  margin: 0;
+}
+
+.login-form__submit {
+  margin-top: 0.5rem;
+  border: none;
+  border-radius: var(--mm-radius-pill);
+  background: var(--mm-color-primary);
+  color: #ffffff;
+  font-family: inherit;
+  font-size: 1rem;
+  font-weight: 600;
+  padding: 0.875rem 1.5rem;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+
+  &:hover {
+    background: var(--mm-color-primary-dark);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--mm-color-primary-dark);
+    outline-offset: 2px;
+  }
+}
