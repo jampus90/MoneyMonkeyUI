@@ -1,59 +1,73 @@
-# MonkeyMoneyUi
+# MoneyMoneyUI
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 19.2.27.
+Frontend Angular do **MoneyMonkey** — app de finanças pessoais (transações, categorias, cartões de crédito e faturas). Consome a MoneyMonkey API (ASP.NET Core, repositório separado) via JWT Bearer.
 
-## Development server
+## Stack
 
-To start a local development server, run:
+- Angular 19 (standalone components, sem NgModules)
+- TypeScript, SCSS
+- RxJS
+- Jasmine + Karma (testes unitários)
 
-```bash
-ng serve
-```
+## Pré-requisitos
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+- Node.js compatível com Angular CLI 19
+- MoneyMonkey API rodando localmente (`https://localhost:7002` por padrão) para testar o app de ponta a ponta no navegador
 
-## Code scaffolding
-
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
-
-```bash
-ng generate component component-name
-```
-
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+## Como rodar
 
 ```bash
-ng generate --help
+npm install
+npm start        # ng serve — http://localhost:4200
 ```
-
-## Building
-
-To build the project run:
 
 ```bash
-ng build
+npm test          # ng test (Karma/Chrome)
+npm run build      # ng build — saída em dist/
 ```
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
+## Configuração de ambiente
 
-## Running unit tests
+A URL base da API vem de `src/environments/`, trocada via `fileReplacements` (padrão Angular CLI):
 
-To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
+- `environment.development.ts` → `apiBaseUrl: 'https://localhost:7002'` (usado em `ng serve`)
+- `environment.ts` → produção (`apiBaseUrl` ainda placeholder até existir um host de produção)
 
-```bash
-ng test
+Serviços que chamam a API devem sempre montar a URL a partir de `environment.apiBaseUrl` — nunca hardcode host/porta. Veja `src/app/core/services/auth.service.ts` como referência.
+
+## Estrutura do projeto
+
+```
+src/app/
+  core/            # código compartilhado: services, interceptors, models
+    interceptors/  # ex.: auth.interceptor.ts — anexa Authorization: Bearer <token>
+    models/        # interfaces/types espelhando docs/api-contract.md
+    services/
+  features/        # uma pasta por feature (ex.: login/)
 ```
 
-## Running end-to-end tests
+Autenticação: o token JWT retornado por `POST /api/auth/login` é persistido pelo `AuthService` e anexado automaticamente como `Authorization: Bearer <token>` pelo `auth.interceptor.ts` em toda rota autenticada.
 
-For end-to-end (e2e) testing, run:
+## Documentação
 
-```bash
-ng e2e
+- [`docs/api-contract.md`](docs/api-contract.md) — contrato de endpoints/DTOs da MoneyMonkey API. Fonte da verdade: nenhum código é escrito contra um contrato desatualizado.
+- [`docs/board.md`](docs/board.md) — backlog de tickets do MVP e status atual.
+- [`docs/specs/`](docs/specs/) — spec de critérios de aceite (Given/When/Then) de cada ticket.
+- [`docs/design/`](docs/design/) — mockups de referência visual.
+
+## Fluxo de desenvolvimento
+
+Este repo segue um ciclo spec-driven com TDD estrito, coordenado por agentes definidos em `.claude/agents/`:
+
+```
+Backlog → [po] escreve a spec (docs/specs/<ticket>.md)
+        → [dev-frontend] TDD: red → green → refactor
+        → [qa] valida contra os critérios de aceite
+        → Aprovado → Done   |   Rejeitado → volta pro dev-frontend
 ```
 
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
+O `orquestrador` coordena as fases e mantém `docs/board.md` atualizado. Nenhum ticket avança para desenvolvimento sem spec, e nenhum é marcado `Done` sem aprovação do QA.
 
-## Additional Resources
+## Recursos adicionais do Angular CLI
 
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+Para scaffolding, comandos e referência geral do Angular CLI, veja [angular.dev/tools/cli](https://angular.dev/tools/cli).
