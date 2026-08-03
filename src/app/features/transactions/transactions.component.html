@@ -1,0 +1,99 @@
+<div class="transactions-page">
+  <section class="transactions-list card">
+    <h1 class="transactions-list__title">Transações</h1>
+
+    @if (listError) {
+      <p class="list-error" role="alert">{{ listError }}</p>
+    } @else if (!isLoadingList && transactions.length === 0) {
+      <p class="empty-state">Nenhuma transação cadastrada ainda</p>
+    } @else {
+      <ul class="transaction-list">
+        @for (transaction of transactions; track transaction.transactionId) {
+          <li class="transaction-item">
+            <span class="transaction-item__avatar" aria-hidden="true"></span>
+            <div class="transaction-item__info">
+              <span class="transaction-item__name">{{ transaction.transactionName }}</span>
+              @if (transaction.categoryId != null || transaction.transactionDate) {
+                <span class="transaction-item__meta">
+                  {{ transaction.categoryId }}{{ transaction.categoryId != null && transaction.transactionDate ? ' · ' : '' }}{{ transaction.transactionDate }}
+                </span>
+              }
+            </div>
+            <span
+              class="transaction-item__value"
+              [class.transaction-item__value--positive]="transaction.type === TransactionType.Entrada"
+              [class.transaction-item__value--negative]="transaction.type === TransactionType.Saida"
+            >
+              {{ transactionSign(transaction) }}{{ transaction.value }}
+            </span>
+          </li>
+        }
+      </ul>
+    }
+  </section>
+
+  <section class="transaction-form card">
+    <h2 class="transaction-form__title">Nova transação</h2>
+
+    <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
+      <div class="field">
+        <label for="transactionName">Nome</label>
+        <input id="transactionName" type="text" formControlName="transactionName" maxlength="101" />
+        @if (form.controls.transactionName.hasError('required') && form.controls.transactionName.touched) {
+          <span class="field-error">Nome é obrigatório</span>
+        }
+        @if (form.controls.transactionName.hasError('maxlength') && form.controls.transactionName.touched) {
+          <span class="field-error">Nome deve ter no máximo 100 caracteres</span>
+        }
+      </div>
+
+      <div class="field">
+        <label for="value">Valor</label>
+        <input id="value" type="text" formControlName="value" inputmode="decimal" />
+        @if (form.controls.value.hasError('required') && form.controls.value.touched) {
+          <span class="field-error">Valor é obrigatório</span>
+        }
+        @if (form.controls.value.hasError('notANumber') && form.controls.value.touched) {
+          <span class="field-error">Valor deve ser numérico</span>
+        }
+        @if (form.controls.value.hasError('notPositive') && form.controls.value.touched) {
+          <span class="field-error">Valor deve ser maior que zero</span>
+        }
+      </div>
+
+      <div class="field">
+        <label for="type">Tipo</label>
+        <select id="type" formControlName="type">
+          <option [ngValue]="null">Selecione</option>
+          @for (type of transactionTypes; track type) {
+            <option [ngValue]="type">{{ transactionTypeLabels[type] }}</option>
+          }
+        </select>
+        @if (form.controls.type.hasError('required') && form.controls.type.touched) {
+          <span class="field-error">Tipo é obrigatório</span>
+        }
+      </div>
+
+      <div class="field">
+        <label for="paymentMethod">Forma de pagamento (opcional)</label>
+        <select id="paymentMethod" formControlName="paymentMethod">
+          <option [ngValue]="null">Não informado</option>
+          @for (method of paymentMethods; track method) {
+            <option [ngValue]="method">{{ paymentMethodLabels[method] }}</option>
+          }
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="transactionDate">Data (opcional)</label>
+        <input id="transactionDate" type="date" formControlName="transactionDate" />
+      </div>
+
+      @if (createError) {
+        <p class="form-error" role="alert">{{ createError }}</p>
+      }
+
+      <button type="submit" class="transaction-form__submit">Adicionar transação</button>
+    </form>
+  </section>
+</div>

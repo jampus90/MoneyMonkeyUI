@@ -5,6 +5,7 @@ import { provideHttpClient } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
 import { AuthService } from './auth.service';
 import { LoginResponse } from '../models/auth.model';
+import { UserType } from '../models/enums.model';
 
 describe('AuthService', () => {
   let service: AuthService;
@@ -13,10 +14,10 @@ describe('AuthService', () => {
   const loginResponse: LoginResponse = {
     token: 'fake-jwt-token',
     expiresAt: '2026-08-10T00:00:00Z',
-    userId: 'user-1',
+    userId: 1,
     firstName: 'Ana',
     lastName: 'Silva',
-    userType: 'Pf'
+    userType: UserType.Pf
   };
 
   beforeEach(() => {

@@ -42,7 +42,7 @@ Sem autenticação.
 {
   token: string;
   expiresAt: string; // date-time
-  userId: string;
+  userId: number;     // int64
   firstName: string;
   lastName: string;
   userType: UserType;
@@ -72,7 +72,7 @@ Sem autenticação. Cadastro de usuário.
 **Response 200** `UserResponse`
 ```ts
 {
-  userId: string;
+  userId: number;     // int64
   firstName: string;
   lastName: string;
   userType: UserType;
@@ -114,7 +114,7 @@ Sem autenticação. Cadastro de usuário.
 **Response 200** `CategoryResponse`
 ```ts
 {
-  categoryId: string;
+  categoryId: number;  // int32
   name: string;
   type: TransactionType;
 }
@@ -139,10 +139,10 @@ Sem autenticação. Cadastro de usuário.
 ```ts
 {
   transactionName: string;          // max 100
-  value: number;                    // > 0
+  value: number;                    // > 0.01
   type: TransactionType;
   paymentMethod?: PaymentMethod;
-  categoryId?: string;
+  categoryId?: number;              // int32, opcional
   transactionDate?: string;         // date, opcional
 }
 ```
@@ -150,12 +150,12 @@ Sem autenticação. Cadastro de usuário.
 **Response 200** `TransactionResponse`
 ```ts
 {
-  transactionId: string;
+  transactionId: number;            // int32
   transactionName: string;
   value: number;
   type: TransactionType;
   paymentMethod?: PaymentMethod;
-  categoryId?: string;
+  categoryId?: number;              // int32
   transactionDate?: string;
 }
 ```
@@ -194,7 +194,7 @@ Sem autenticação. Cadastro de usuário.
 **Response 200** `CreditCardResponse`
 ```ts
 {
-  creditCardId: string;
+  creditCardId: number;  // int32
   name: string;
   brand: CardBrand;
   lastFourDigits: string;
@@ -210,10 +210,10 @@ Sem autenticação. Cadastro de usuário.
 ```ts
 {
   description: string;       // max 100
-  totalValue: number;        // > 0
+  totalValue: number;        // > 0.01
   purchaseDate?: string;     // date, opcional
   installmentsCount?: number; // 1-48, opcional
-  categoryId?: string;
+  categoryId?: number;       // int32, opcional
   isSubscription: boolean;   // default false
 }
 ```
@@ -229,7 +229,7 @@ Sem autenticação. Cadastro de usuário.
 **Response 200** `CreditCardInvoiceResponse`
 ```ts
 {
-  creditCardId: string;
+  creditCardId: number;      // int32
   invoiceMonth: number;
   invoiceYear: number;
   dueDate: string;           // date
@@ -241,9 +241,9 @@ Sem autenticação. Cadastro de usuário.
 `CreditCardInstallmentResponse`
 ```ts
 {
-  creditCardInstallmentId: string;
+  creditCardInstallmentId: number; // int32
   description: string;
-  categoryId?: string;
+  categoryId?: number;             // int32
   isSubscription: boolean;
   installmentNumber: number;
   installmentsCount: number;
@@ -256,24 +256,41 @@ Sem autenticação. Cadastro de usuário.
 
 ## Enums
 
-> Trafegam como **string** no JSON (não como número).
+> **Correção 2026-08-03**: trafegam como **número (int)** no JSON, não como string — a versão anterior deste documento estava incorreta e causou uma rejeição 400 real da API (`type: "Entrada"` não é aceito, só `type: 0`). Confirmado via `/swagger/v1/swagger.json` (schemas só trazem os inteiros, sem nomes) e por chamadas reais ao endpoint. O mapeamento nome↔número abaixo segue a ordem de declaração do documento original, que corresponde à ordem padrão de enum do C# (primeiro membro = 0); `UserType.Pf = 0` foi confirmado batendo com o retorno real de `POST /api/auth/login` para um usuário pessoa física de teste.
 
 ```ts
-type TransactionType = 'Entrada' | 'Saida';
+enum TransactionType {
+  Entrada = 0,
+  Saida = 1,
+}
 
-type PaymentMethod =
-  | 'Pix'
-  | 'Dinheiro'
-  | 'CartaoCredito'
-  | 'CartaoDebito'
-  | 'Boleto'
-  | 'Transferencia'
-  | 'Outro';
+enum PaymentMethod {
+  Pix = 0,
+  Dinheiro = 1,
+  CartaoCredito = 2,
+  CartaoDebito = 3,
+  Boleto = 4,
+  Transferencia = 5,
+  Outro = 6,
+}
 
-type CardBrand = 'Visa' | 'Mastercard' | 'Elo' | 'Amex' | 'Outro';
+enum CardBrand {
+  Visa = 0,
+  Mastercard = 1,
+  Elo = 2,
+  Amex = 3,
+  Outro = 4,
+}
 
-type UserType = 'Pf' | 'Pj' | 'Staff' | 'Admin';
+enum UserType {
+  Pf = 0,
+  Pj = 1,
+  Staff = 2,
+  Admin = 3,
+}
 ```
+
+Todo campo `*Id` (`userId`, `categoryId`, `transactionId`, `creditCardId`, `creditCardInstallmentId`) também trafega como **número** (`int32`, exceto `userId` que é `int64`), não como string — mesma correção, mesma causa raiz (o contrato original assumiu tipos que a API real não usa).
 
 ---
 

@@ -7,6 +7,7 @@ import { of, throwError } from 'rxjs';
 import { LoginComponent } from './login.component';
 import { AuthService } from '../../core/services/auth.service';
 import { LoginResponse } from '../../core/models/auth.model';
+import { UserType } from '../../core/models/enums.model';
 
 describe('LoginComponent', () => {
   let fixture: ComponentFixture<LoginComponent>;
@@ -17,10 +18,10 @@ describe('LoginComponent', () => {
   const loginResponse: LoginResponse = {
     token: 'fake-jwt-token',
     expiresAt: '2026-08-10T00:00:00Z',
-    userId: 'user-1',
+    userId: 1,
     firstName: 'Ana',
     lastName: 'Silva',
-    userType: 'Pf'
+    userType: UserType.Pf
   };
 
   beforeEach(async () => {
@@ -59,7 +60,7 @@ describe('LoginComponent', () => {
     submit();
 
     expect(authServiceSpy.login).toHaveBeenCalledWith({ username: 'ana', password: 'senha123' });
-    expect(router.navigateByUrl).toHaveBeenCalled();
+    expect(router.navigateByUrl).toHaveBeenCalledWith('/transactions');
     expect(component.errorMessage).toBeNull();
   });
 

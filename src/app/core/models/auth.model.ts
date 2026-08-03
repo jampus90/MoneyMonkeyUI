@@ -10,7 +10,7 @@ export interface LoginRequest {
 export interface LoginResponse {
   token: string;
   expiresAt: string; // date-time
-  userId: string;
+  userId: number; // int64
   firstName: string;
   lastName: string;
   userType: UserType;

@@ -38,7 +38,7 @@ export class LoginComponent {
     const { username, password } = this.form.getRawValue();
 
     this.authService.login({ username, password }).subscribe({
-      next: () => this.router.navigateByUrl('/'),
+      next: () => this.router.navigateByUrl('/transactions'),
       error: (err: HttpErrorResponse) => {
         this.errorMessage = err.status === 401 ? INVALID_CREDENTIALS_MESSAGE : CONNECTION_ERROR_MESSAGE;
       }
