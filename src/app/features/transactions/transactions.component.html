@@ -88,6 +88,16 @@
       </div>
 
       <div class="field">
+        <label for="category">Categoria (opcional)</label>
+        <select id="category" formControlName="categoryId">
+          <option [ngValue]="null">Nenhuma</option>
+          @for (category of categories; track category.categoryId) {
+            <option [ngValue]="category.categoryId">{{ categoryOptionLabel(category) }}</option>
+          }
+        </select>
+      </div>
+
+      <div class="field">
         <label for="transactionDate">Data (opcional)</label>
         <input id="transactionDate" type="date" formControlName="transactionDate" />
       </div>

@@ -41,6 +41,15 @@ describe('NavBarComponent', () => {
     expect(link?.textContent?.trim()).toBe('Categorias');
   });
 
+  it('deve renderizar link para Cartões apontando para /credit-cards', () => {
+    const fixture = TestBed.createComponent(NavBarComponent);
+    fixture.detectChanges();
+
+    const compiled = fixture.nativeElement as HTMLElement;
+    const link = compiled.querySelector('a[href="/credit-cards"]');
+    expect(link?.textContent?.trim()).toBe('Cartões');
+  });
+
   it('deve marcar como ativo o link da rota atual', async () => {
     const fixture = TestBed.createComponent(NavBarComponent);
     const router = TestBed.inject(Router);

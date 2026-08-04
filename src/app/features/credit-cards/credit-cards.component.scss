@@ -1,0 +1,90 @@
+@use '../../../styles/shared' as shared;
+
+.credit-cards-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  padding: 2rem 1rem;
+  background: var(--mm-color-bg);
+  box-sizing: border-box;
+}
+
+.card {
+  @include shared.mm-card-base;
+  width: 100%;
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 1.75rem 1.5rem;
+}
+
+.credit-cards-list__title,
+.credit-card-form__title {
+  margin: 0 0 1rem;
+  color: var(--mm-color-text);
+}
+
+.loading-state,
+.empty-state,
+.list-error {
+  color: var(--mm-color-text-muted);
+  font-size: 0.9375rem;
+}
+
+.list-error {
+  color: var(--mm-color-primary-dark);
+}
+
+.credit-card-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.credit-card-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.credit-card-item__info {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+
+.credit-card-item__name {
+  font-weight: 600;
+  color: var(--mm-color-text);
+}
+
+.credit-card-item__meta {
+  font-size: 0.8125rem;
+  color: var(--mm-color-text-muted);
+}
+
+form {
+  @include shared.mm-form-stack;
+}
+
+.field {
+  @include shared.mm-field-group;
+}
+
+.field input,
+.field select {
+  @include shared.mm-form-field-input;
+}
+
+.field-error,
+.form-error {
+  @include shared.mm-field-error;
+}
+
+.credit-card-form__submit {
+  @include shared.mm-pill-button;
+}

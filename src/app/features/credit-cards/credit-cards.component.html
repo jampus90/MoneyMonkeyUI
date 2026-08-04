@@ -1,0 +1,109 @@
+<div class="credit-cards-page">
+  <section class="credit-cards-list card">
+    <h1 class="credit-cards-list__title">Cartões de crédito</h1>
+
+    @if (isLoadingList && creditCards.length === 0) {
+      <p class="loading-state">Carregando...</p>
+    } @else if (listError) {
+      <p class="list-error" role="alert">{{ listError }}</p>
+    } @else if (!isLoadingList && creditCards.length === 0) {
+      <p class="empty-state">Nenhum cartão cadastrado ainda</p>
+    } @else {
+      <ul class="credit-card-list">
+        @for (creditCard of creditCards; track creditCard.creditCardId) {
+          <li class="credit-card-item">
+            <div class="credit-card-item__info">
+              <span class="credit-card-item__name">{{ creditCard.name }}</span>
+              <span class="credit-card-item__meta">
+                {{ brandLabel(creditCard) }} · **** {{ creditCard.lastFourDigits }}
+              </span>
+              <span class="credit-card-item__meta">
+                Fecha dia {{ creditCard.closingDay }} · Vence dia {{ creditCard.dueDay }}
+              </span>
+              @if (creditCard.creditLimit != null) {
+                <span class="credit-card-item__meta">Limite: {{ creditCard.creditLimit }}</span>
+              }
+            </div>
+          </li>
+        }
+      </ul>
+    }
+  </section>
+
+  <section class="credit-card-form card">
+    <h2 class="credit-card-form__title">Novo cartão</h2>
+
+    <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
+      <div class="field">
+        <label for="name">Nome</label>
+        <input id="name" type="text" formControlName="name" maxlength="51" />
+        @if (form.controls.name.hasError('required') && form.controls.name.touched) {
+          <span class="field-error">Nome é obrigatório</span>
+        }
+        @if (form.controls.name.hasError('maxlength') && form.controls.name.touched) {
+          <span class="field-error">Nome deve ter no máximo 50 caracteres</span>
+        }
+      </div>
+
+      <div class="field">
+        <label for="brand">Bandeira</label>
+        <select id="brand" formControlName="brand">
+          <option [ngValue]="null">Selecione</option>
+          @for (brand of cardBrands; track brand) {
+            <option [ngValue]="brand">{{ cardBrandLabels[brand] }}</option>
+          }
+        </select>
+        @if (form.controls.brand.hasError('required') && form.controls.brand.touched) {
+          <span class="field-error">Bandeira é obrigatória</span>
+        }
+      </div>
+
+      <div class="field">
+        <label for="lastFourDigits">Últimos 4 dígitos</label>
+        <input id="lastFourDigits" type="text" formControlName="lastFourDigits" maxlength="4" inputmode="numeric" />
+        @if (form.controls.lastFourDigits.hasError('required') && form.controls.lastFourDigits.touched) {
+          <span class="field-error">Últimos 4 dígitos são obrigatórios</span>
+        }
+        @if (form.controls.lastFourDigits.hasError('length') && form.controls.lastFourDigits.touched) {
+          <span class="field-error">Deve conter exatamente 4 caracteres</span>
+        }
+        @if (form.controls.lastFourDigits.hasError('digitsOnly') && form.controls.lastFourDigits.touched) {
+          <span class="field-error">Deve conter apenas dígitos</span>
+        }
+      </div>
+
+      <div class="field">
+        <label for="closingDay">Dia de fechamento</label>
+        <input id="closingDay" type="text" formControlName="closingDay" inputmode="numeric" />
+        @if (form.controls.closingDay.hasError('required') && form.controls.closingDay.touched) {
+          <span class="field-error">Dia de fechamento é obrigatório</span>
+        }
+        @if (form.controls.closingDay.hasError('outOfRange') && form.controls.closingDay.touched) {
+          <span class="field-error">Deve estar entre 1 e 28</span>
+        }
+      </div>
+
+      <div class="field">
+        <label for="dueDay">Dia de vencimento</label>
+        <input id="dueDay" type="text" formControlName="dueDay" inputmode="numeric" />
+        @if (form.controls.dueDay.hasError('required') && form.controls.dueDay.touched) {
+          <span class="field-error">Dia de vencimento é obrigatório</span>
+        }
+        @if (form.controls.dueDay.hasError('outOfRange') && form.controls.dueDay.touched) {
+          <span class="field-error">Deve estar entre 1 e 28</span>
+        }
+      </div>
+
+      <div class="field">
+        <label for="creditLimit">Limite de crédito (opcional)</label>
+        <input id="creditLimit" type="text" formControlName="creditLimit" inputmode="decimal" />
+      </div>
+
+      @if (createError) {
+        <p class="form-error" role="alert">{{ createError }}</p>
+      }
+
+      <button type="submit" class="credit-card-form__submit">Adicionar cartão</button>
+    </form>
+  </section>
+</div>

@@ -10,6 +10,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { TransactionService } from '../../core/services/transaction.service';
 import { CategoryService } from '../../core/services/category.service';
 import { TransactionRequest, TransactionResponse } from '../../core/models/transaction.model';
+import { CategoryResponse } from '../../core/models/category.model';
 import { PaymentMethod, TransactionType } from '../../core/models/enums.model';
 
 const LOAD_ERROR_MESSAGE = 'Não foi possível carregar as transações. Tente novamente.';
@@ -90,11 +91,18 @@ export class TransactionsComponent implements OnInit {
   // toda transacao com categoryId presente cair no fallback de "nao encontrada".
   private categoryNamesById = new Map<number, string>();
 
+  // Lista de categorias usada para popular o <select> de categoria do formulario de
+  // criacao (MVP-6). Montada a partir da mesma chamada de loadCategories() (UX-2) -
+  // nenhuma segunda chamada a GET /api/category e feita (criterio 2). Permanece vazia
+  // se a lista vier vazia ou a chamada falhar (criterios 3 e 4), sem quebrar o formulario.
+  categories: CategoryResponse[] = [];
+
   readonly form = this.fb.group({
     transactionName: this.fb.nonNullable.control('', [Validators.required, Validators.maxLength(100)]),
     value: this.fb.nonNullable.control('', [Validators.required, positiveNumberValidator]),
     type: this.fb.control<TransactionType | null>(null, Validators.required),
     paymentMethod: this.fb.control<PaymentMethod | null>(null),
+    categoryId: this.fb.control<number | null>(null),
     transactionDate: this.fb.nonNullable.control('')
   });
 
@@ -128,11 +136,19 @@ export class TransactionsComponent implements OnInit {
         this.categoryNamesById = new Map(
           response.categoryResponses.map((category) => [category.categoryId, category.name])
         );
+        this.categories = response.categoryResponses;
       },
       error: () => {
         // Falha silenciosa: nao ha estado de erro dedicado a categorias nesta tela (ver spec).
       }
     });
+  }
+
+  // Rotulo da <option> do select de categoria (MVP-6). Inclui o type entre parenteses
+  // para desambiguar categorias homonimas de types diferentes (ver "Casos de borda" da
+  // spec) - usa apenas name/type, ja existentes em CategoryResponse.
+  categoryOptionLabel(category: CategoryResponse): string {
+    return `${category.name} (${this.transactionTypeLabels[category.type]})`;
   }
 
   transactionSign(transaction: TransactionResponse): string {
@@ -161,7 +177,14 @@ export class TransactionsComponent implements OnInit {
     this.transactionService.create(payload).subscribe({
       next: (response) => {
         this.transactions = [response, ...this.transactions];
-        this.form.reset({ transactionName: '', value: '', type: null, paymentMethod: null, transactionDate: '' });
+        this.form.reset({
+          transactionName: '',
+          value: '',
+          type: null,
+          paymentMethod: null,
+          categoryId: null,
+          transactionDate: ''
+        });
       },
       error: (err: HttpErrorResponse) => {
         this.createError = err.status === 400 ? CREATE_BAD_REQUEST_MESSAGE : CREATE_CONNECTION_ERROR_MESSAGE;
@@ -180,6 +203,9 @@ export class TransactionsComponent implements OnInit {
 
     if (raw.paymentMethod !== null) {
       request.paymentMethod = raw.paymentMethod;
+    }
+    if (raw.categoryId !== null) {
+      request.categoryId = raw.categoryId;
     }
     if (raw.transactionDate) {
       request.transactionDate = raw.transactionDate;

@@ -568,4 +568,138 @@ describe('TransactionsComponent', () => {
     expect('paymentMethod' in sentPayload).toBeFalse();
     expect('transactionDate' in sentPayload).toBeFalse();
   });
+
+  // --- MVP-6: Selecao de categoria na criacao de transacoes ---
+
+  it('MVP-6 criterio 1: select de categoria exibe as opcoes de GET /api/category com ngValue numerico e opcao padrao selecionada por padrao', () => {
+    setupWithCategories([
+      { categoryId: 3, name: 'Roupa', type: TransactionType.Saida },
+      { categoryId: 7, name: 'Mercado', type: TransactionType.Saida }
+    ]);
+    fixture.detectChanges();
+
+    const select: HTMLSelectElement = fixture.nativeElement.querySelector('#category');
+    expect(select.tagName).toBe('SELECT');
+    expect(select.options.length).toBe(3);
+    expect(select.options[0].textContent).toContain('Nenhuma');
+    expect(select.options[1].textContent).toContain('Roupa');
+    expect(select.options[2].textContent).toContain('Mercado');
+
+    expect(component.form.controls.categoryId.value).toBeNull();
+
+    select.selectedIndex = 1;
+    select.dispatchEvent(new Event('change'));
+    fixture.detectChanges();
+
+    expect(component.form.controls.categoryId.value).toBe(3);
+    expect(typeof component.form.controls.categoryId.value).toBe('number');
+  });
+
+  it('MVP-6 criterio 2: nenhuma chamada adicional a GET /api/category e feita para popular o select (reaproveita a chamada de loadCategories)', () => {
+    setupWithCategories([{ categoryId: 3, name: 'Roupa', type: TransactionType.Saida }]);
+    fixture.detectChanges();
+
+    const select: HTMLSelectElement = fixture.nativeElement.querySelector('#category');
+    expect(select.options.length).toBe(2);
+    expect(categoryServiceSpy.getAll).toHaveBeenCalledTimes(1);
+  });
+
+  it('MVP-6 criterio 3: lista de categorias vazia exibe apenas a opcao padrao no select, sem quebrar a criacao de transacao', () => {
+    setupWithCategories([]);
+    fixture.detectChanges();
+
+    const select: HTMLSelectElement = fixture.nativeElement.querySelector('#category');
+    expect(select.options.length).toBe(1);
+    expect(select.options[0].textContent).toContain('Nenhuma');
+
+    transactionServiceSpy.create.and.returnValue(of(salaryTx));
+    fillRequiredFields('Salário', '5000', TransactionType.Entrada);
+    submitCreateForm();
+
+    expect(transactionServiceSpy.create).toHaveBeenCalled();
+  });
+
+  it('MVP-6 criterio 4: falha ao carregar GET /api/category exibe apenas a opcao padrao no select e nao bloqueia a criacao de transacao', () => {
+    categoryServiceSpy.getAll.and.returnValue(
+      throwError(() => new HttpErrorResponse({ status: 0, statusText: 'Unknown Error' }))
+    );
+    fixture.detectChanges();
+
+    const select: HTMLSelectElement = fixture.nativeElement.querySelector('#category');
+    expect(select.options.length).toBe(1);
+    expect(select.options[0].textContent).toContain('Nenhuma');
+
+    transactionServiceSpy.create.and.returnValue(of(salaryTx));
+    fillRequiredFields('Salário', '5000', TransactionType.Entrada);
+    submitCreateForm();
+
+    expect(transactionServiceSpy.create).toHaveBeenCalled();
+    expect(component.createError).toBeNull();
+  });
+
+  it('MVP-6 criterio 5: categoria selecionada e incluida no payload como numero e o select volta ao padrao apos sucesso', () => {
+    setupWithCategories([{ categoryId: 3, name: 'Roupa', type: TransactionType.Saida }]);
+    fixture.detectChanges();
+    transactionServiceSpy.create.and.returnValue(of({ ...marketTx, categoryId: 3 }));
+
+    fillRequiredFields('Calça', '300', TransactionType.Saida);
+    component.form.controls.categoryId.setValue(3);
+    submitCreateForm();
+
+    expect(transactionServiceSpy.create).toHaveBeenCalledWith({
+      transactionName: 'Calça',
+      value: 300,
+      type: TransactionType.Saida,
+      categoryId: 3
+    });
+    expect(component.form.controls.categoryId.value).toBeNull();
+  });
+
+  it('MVP-6 criterio 6: nenhuma categoria selecionada - categoryId e omitido do payload (nao enviado como null nem 0)', () => {
+    fixture.detectChanges();
+    transactionServiceSpy.create.and.returnValue(of(salaryTx));
+
+    fillRequiredFields('Salário', '5000', TransactionType.Entrada);
+    submitCreateForm();
+
+    const sentPayload = transactionServiceSpy.create.calls.mostRecent().args[0];
+    expect(sentPayload.categoryId).toBeUndefined();
+    expect('categoryId' in sentPayload).toBeFalse();
+  });
+
+  it('MVP-6 criterio 7: erro 400 ao criar com categoria selecionada mantem o formulario preenchido (incluindo categoria) e nao adiciona a listagem', () => {
+    setupWithCategories([{ categoryId: 3, name: 'Roupa', type: TransactionType.Saida }]);
+    fixture.detectChanges();
+    transactionServiceSpy.create.and.returnValue(
+      throwError(() => new HttpErrorResponse({ status: 400, statusText: 'Bad Request' }))
+    );
+
+    fillRequiredFields('Calça', '300', TransactionType.Saida);
+    component.form.controls.categoryId.setValue(3);
+    submitCreateForm();
+
+    expect(component.createError).toBeTruthy();
+    expect(component.form.controls.categoryId.value).toBe(3);
+    expect(component.transactions.length).toBe(0);
+  });
+
+  it('MVP-6 criterio 8: campo categoria nao possui Validators.required - submissao sem categoria selecionada e valida', () => {
+    fixture.detectChanges();
+    fillRequiredFields('Salário', '5000', TransactionType.Entrada);
+
+    expect(component.form.controls.categoryId.hasError('required')).toBeFalse();
+    expect(component.form.valid).toBeTrue();
+  });
+
+  it('MVP-6 caso de borda: rotulo da opcao de categoria inclui o type para desambiguar categorias homonimas', () => {
+    setupWithCategories([
+      { categoryId: 1, name: 'Roupa', type: TransactionType.Saida },
+      { categoryId: 2, name: 'Roupa', type: TransactionType.Entrada }
+    ]);
+    fixture.detectChanges();
+
+    const select: HTMLSelectElement = fixture.nativeElement.querySelector('#category');
+    const labels = Array.from(select.options).map((o) => o.textContent?.trim());
+    expect(labels).toEqual(['Nenhuma', 'Roupa (Saída)', 'Roupa (Entrada)']);
+  });
 });

@@ -22,3 +22,11 @@ export enum PaymentMethod {
   Transferencia = 5,
   Outro = 6
 }
+
+export enum CardBrand {
+  Visa = 0,
+  Mastercard = 1,
+  Elo = 2,
+  Amex = 3,
+  Outro = 4
+}
