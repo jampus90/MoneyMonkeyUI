@@ -1,6 +1,6 @@
 @use '../../../styles/shared' as shared;
 
-.transactions-page {
+.categories-page {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
@@ -18,8 +18,8 @@
   padding: 1.75rem 1.5rem;
 }
 
-.transactions-list__title,
-.transaction-form__title {
+.categories-list__title,
+.category-form__title {
   margin: 0 0 1rem;
   color: var(--mm-color-text);
 }
@@ -35,7 +35,7 @@
   color: var(--mm-color-primary-dark);
 }
 
-.transaction-list {
+.category-list {
   list-style: none;
   margin: 0;
   padding: 0;
@@ -44,46 +44,28 @@
   gap: 0.75rem;
 }
 
-.transaction-item {
+.category-item {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 0.75rem;
 }
 
-.transaction-item__avatar {
-  width: 2.25rem;
-  height: 2.25rem;
-  border-radius: 50%;
-  background: var(--mm-color-accent);
-  flex-shrink: 0;
-}
-
-.transaction-item__info {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  min-width: 0;
-}
-
-.transaction-item__name {
+.category-item__name {
   font-weight: 600;
   color: var(--mm-color-text);
 }
 
-.transaction-item__meta {
+.category-item__type {
   font-size: 0.8125rem;
-  color: var(--mm-color-text-muted);
-}
-
-.transaction-item__value {
   font-weight: 700;
 }
 
-.transaction-item__value--positive {
+.category-item__type--positive {
   color: #4b6b30;
 }
 
-.transaction-item__value--negative {
+.category-item__type--negative {
   color: var(--mm-color-primary-dark);
 }
 
@@ -105,6 +87,6 @@ form {
   @include shared.mm-field-error;
 }
 
-.transaction-form__submit {
+.category-form__submit {
   @include shared.mm-pill-button;
 }

@@ -1,0 +1,85 @@
+// Estilos compartilhados entre telas (UX-4).
+// Mixins extraídos da duplicação identificada entre transactions/categories/login
+// (.component.scss). Usam exclusivamente os tokens já definidos em src/styles.scss.
+// Nenhuma propriedade que já divergia entre telas (ex. dimensões/padding de
+// .card vs .login-card) é incluída aqui — essas continuam declaradas localmente
+// em cada component.scss.
+
+// Subconjunto 100% comum de `.card` (transactions/categories) e `.login-card`.
+@mixin mm-card-base {
+  background: var(--mm-color-surface);
+  border-radius: var(--mm-radius-card);
+  box-shadow: var(--mm-shadow-card);
+  box-sizing: border-box;
+}
+
+// Layout do contêiner de formulário (`form` em transactions/categories,
+// `.login-form` em login).
+@mixin mm-form-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 1.125rem;
+}
+
+// `.field` (contêiner) e `.field label`, idênticos nos três.
+@mixin mm-field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+
+  label {
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--mm-color-text-muted);
+  }
+}
+
+// Estilo de `.field input`/`.field select` (Login não tem `select`, mas o
+// mixin não depende da presença de `select` no seletor que o inclui).
+@mixin mm-form-field-input {
+  font-family: inherit;
+  font-size: 1rem;
+  color: var(--mm-color-text);
+  background: var(--mm-color-input-bg);
+  border: 1px solid var(--mm-color-border);
+  border-radius: var(--mm-radius-field);
+  padding: 0.75rem 1rem;
+  box-sizing: border-box;
+
+  &:focus {
+    outline: none;
+    border-color: var(--mm-color-primary);
+    box-shadow: 0 0 0 3px rgba(124, 34, 66, 0.15);
+  }
+}
+
+// `.field-error, .form-error`, idêntico nos três.
+@mixin mm-field-error {
+  color: var(--mm-color-primary-dark);
+  font-size: 0.8125rem;
+  margin: 0;
+}
+
+// Botão pill de submit, idêntico em todas as propriedades entre as três telas.
+@mixin mm-pill-button {
+  margin-top: 0.5rem;
+  border: none;
+  border-radius: var(--mm-radius-pill);
+  background: var(--mm-color-primary);
+  color: #ffffff;
+  font-family: inherit;
+  font-size: 1rem;
+  font-weight: 600;
+  padding: 0.875rem 1.5rem;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+
+  &:hover {
+    background: var(--mm-color-primary-dark);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--mm-color-primary-dark);
+    outline-offset: 2px;
+  }
+}

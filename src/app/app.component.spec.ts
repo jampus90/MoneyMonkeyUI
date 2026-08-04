@@ -36,4 +36,48 @@ describe('AppComponent', () => {
     expect(compiled.textContent).not.toContain('Congratulations! Your app is running');
     expect(compiled.querySelector('.pill-group')).toBeFalsy();
   });
+
+  it('não deve exibir a barra de navegação na tela de login ("/")', async () => {
+    const fixture = TestBed.createComponent(AppComponent);
+    const router = TestBed.inject(Router);
+
+    await router.navigateByUrl('/');
+    fixture.detectChanges();
+
+    const compiled = fixture.nativeElement as HTMLElement;
+    expect(compiled.querySelector('app-nav-bar')).toBeFalsy();
+  });
+
+  it('não deve exibir a barra de navegação em "/login"', async () => {
+    const fixture = TestBed.createComponent(AppComponent);
+    const router = TestBed.inject(Router);
+
+    await router.navigateByUrl('/login');
+    fixture.detectChanges();
+
+    const compiled = fixture.nativeElement as HTMLElement;
+    expect(compiled.querySelector('app-nav-bar')).toBeFalsy();
+  });
+
+  it('deve exibir a barra de navegação em "/transactions"', async () => {
+    const fixture = TestBed.createComponent(AppComponent);
+    const router = TestBed.inject(Router);
+
+    await router.navigateByUrl('/transactions');
+    fixture.detectChanges();
+
+    const compiled = fixture.nativeElement as HTMLElement;
+    expect(compiled.querySelector('app-nav-bar')).toBeTruthy();
+  });
+
+  it('deve exibir a barra de navegação em "/categories"', async () => {
+    const fixture = TestBed.createComponent(AppComponent);
+    const router = TestBed.inject(Router);
+
+    await router.navigateByUrl('/categories');
+    fixture.detectChanges();
+
+    const compiled = fixture.nativeElement as HTMLElement;
+    expect(compiled.querySelector('app-nav-bar')).toBeTruthy();
+  });
 });

@@ -81,4 +81,22 @@ describe('AuthService', () => {
   it('getToken retorna null quando nenhum login foi realizado', () => {
     expect(service.getToken()).toBeNull();
   });
+
+  it('logout remove o token de localStorage e getToken passa a retornar null', () => {
+    service.login({ username: 'ana', password: 'senha123' }).subscribe();
+    const req = httpMock.expectOne(`${environment.apiBaseUrl}/api/auth/login`);
+    req.flush(loginResponse);
+
+    expect(service.getToken()).toBe('fake-jwt-token');
+
+    service.logout();
+
+    expect(service.getToken()).toBeNull();
+    expect(localStorage.getItem('auth_token')).toBeNull();
+  });
+
+  it('logout chamado quando nao ha token nao lanca erro (idempotente)', () => {
+    expect(() => service.logout()).not.toThrow();
+    expect(service.getToken()).toBeNull();
+  });
 });

@@ -4,15 +4,21 @@
 
 import { Component, OnInit, inject } from '@angular/core';
 import { AbstractControl, FormBuilder, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
+import { CurrencyPipe, DatePipe } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 
 import { TransactionService } from '../../core/services/transaction.service';
+import { CategoryService } from '../../core/services/category.service';
 import { TransactionRequest, TransactionResponse } from '../../core/models/transaction.model';
 import { PaymentMethod, TransactionType } from '../../core/models/enums.model';
 
 const LOAD_ERROR_MESSAGE = 'Não foi possível carregar as transações. Tente novamente.';
 const CREATE_BAD_REQUEST_MESSAGE = 'Não foi possível salvar a transação. Verifique os dados informados.';
 const CREATE_CONNECTION_ERROR_MESSAGE = 'Erro de conexão. Tente novamente.';
+// Fallback estavel para categoryId presente mas nao encontrado no mapa (categoria excluida/
+// inconsistencia, criterio 9) e tambem para o caso de falha ao carregar GET /api/category
+// (criterio 10) - mesmo texto em ambos os casos, conforme permitido pela spec (UX-2).
+const CATEGORY_NOT_FOUND_LABEL = 'Categoria não encontrada';
 
 const TRANSACTION_TYPES: TransactionType[] = [TransactionType.Entrada, TransactionType.Saida];
 const PAYMENT_METHODS: PaymentMethod[] = [
@@ -58,13 +64,14 @@ function positiveNumberValidator(control: AbstractControl): ValidationErrors | n
 @Component({
   selector: 'app-transactions',
   standalone: true,
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, CurrencyPipe, DatePipe],
   templateUrl: './transactions.component.html',
   styleUrl: './transactions.component.scss'
 })
 export class TransactionsComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly transactionService = inject(TransactionService);
+  private readonly categoryService = inject(CategoryService);
 
   readonly TransactionType = TransactionType;
   readonly transactionTypes = TRANSACTION_TYPES;
@@ -78,6 +85,11 @@ export class TransactionsComponent implements OnInit {
 
   createError: string | null = null;
 
+  // Mapeamento categoryId -> name (criterio 7), montado uma unica vez a partir de
+  // GET /api/category. Permanece vazio se a chamada falhar (criterio 10), o que faz
+  // toda transacao com categoryId presente cair no fallback de "nao encontrada".
+  private categoryNamesById = new Map<number, string>();
+
   readonly form = this.fb.group({
     transactionName: this.fb.nonNullable.control('', [Validators.required, Validators.maxLength(100)]),
     value: this.fb.nonNullable.control('', [Validators.required, positiveNumberValidator]),
@@ -88,6 +100,7 @@ export class TransactionsComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadTransactions();
+    this.loadCategories();
   }
 
   loadTransactions(): void {
@@ -106,8 +119,33 @@ export class TransactionsComponent implements OnInit {
     });
   }
 
+  // Chamada auxiliar e silenciosa (sem estado de loading/erro dedicado, ver spec UX-2):
+  // se falhar, categoryNamesById permanece vazio e a listagem de transacoes segue
+  // renderizando normalmente, com fallback textual para categorias (criterio 10).
+  loadCategories(): void {
+    this.categoryService.getAll().subscribe({
+      next: (response) => {
+        this.categoryNamesById = new Map(
+          response.categoryResponses.map((category) => [category.categoryId, category.name])
+        );
+      },
+      error: () => {
+        // Falha silenciosa: nao ha estado de erro dedicado a categorias nesta tela (ver spec).
+      }
+    });
+  }
+
   transactionSign(transaction: TransactionResponse): string {
     return transaction.type === TransactionType.Entrada ? '+' : '−';
+  }
+
+  // Retorna o nome da categoria resolvido, um fallback estavel (categoria nao encontrada
+  // ou mapa nao carregado) ou null quando a transacao nao tem categoryId (criterios 6, 8, 9, 10).
+  categoryName(transaction: TransactionResponse): string | null {
+    if (transaction.categoryId == null) {
+      return null;
+    }
+    return this.categoryNamesById.get(transaction.categoryId) ?? CATEGORY_NOT_FOUND_LABEL;
   }
 
   onSubmit(): void {

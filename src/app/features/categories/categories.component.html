@@ -1,0 +1,64 @@
+<div class="categories-page">
+  <section class="categories-list card">
+    <h1 class="categories-list__title">Categorias</h1>
+
+    @if (isLoadingList && categories.length === 0) {
+      <p class="loading-state">Carregando...</p>
+    } @else if (listError) {
+      <p class="list-error" role="alert">{{ listError }}</p>
+    } @else if (!isLoadingList && categories.length === 0) {
+      <p class="empty-state">Nenhuma categoria cadastrada ainda</p>
+    } @else {
+      <ul class="category-list">
+        @for (category of categories; track category.categoryId) {
+          <li class="category-item">
+            <span class="category-item__name">{{ category.name }}</span>
+            <span
+              class="category-item__type"
+              [class.category-item__type--positive]="category.type === TransactionType.Entrada"
+              [class.category-item__type--negative]="category.type === TransactionType.Saida"
+            >
+              {{ categoryTypeLabel(category) }}
+            </span>
+          </li>
+        }
+      </ul>
+    }
+  </section>
+
+  <section class="category-form card">
+    <h2 class="category-form__title">Nova categoria</h2>
+
+    <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
+      <div class="field">
+        <label for="name">Nome</label>
+        <input id="name" type="text" formControlName="name" maxlength="51" />
+        @if (form.controls.name.hasError('required') && form.controls.name.touched) {
+          <span class="field-error">Nome é obrigatório</span>
+        }
+        @if (form.controls.name.hasError('maxlength') && form.controls.name.touched) {
+          <span class="field-error">Nome deve ter no máximo 50 caracteres</span>
+        }
+      </div>
+
+      <div class="field">
+        <label for="type">Tipo</label>
+        <select id="type" formControlName="type">
+          <option [ngValue]="null">Selecione</option>
+          @for (type of transactionTypes; track type) {
+            <option [ngValue]="type">{{ transactionTypeLabels[type] }}</option>
+          }
+        </select>
+        @if (form.controls.type.hasError('required') && form.controls.type.touched) {
+          <span class="field-error">Tipo é obrigatório</span>
+        }
+      </div>
+
+      @if (createError) {
+        <p class="form-error" role="alert">{{ createError }}</p>
+      }
+
+      <button type="submit" class="category-form__submit">Adicionar categoria</button>
+    </form>
+  </section>
+</div>

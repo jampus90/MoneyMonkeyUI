@@ -1,3 +1,5 @@
+@use '../../../styles/shared' as shared;
+
 .login-page {
   min-height: 100vh;
   display: flex;
@@ -9,13 +11,10 @@
 }
 
 .login-card {
+  @include shared.mm-card-base;
   width: 100%;
   max-width: 380px;
-  background: var(--mm-color-surface);
-  border-radius: var(--mm-radius-card);
-  box-shadow: var(--mm-shadow-card);
   padding: 2.5rem 2rem;
-  box-sizing: border-box;
   display: flex;
   flex-direction: column;
   gap: 1.75rem;
@@ -43,9 +42,7 @@
 }
 
 .login-form {
-  display: flex;
-  flex-direction: column;
-  gap: 1.125rem;
+  @include shared.mm-form-stack;
 }
 
 .login-form__title {
@@ -56,60 +53,18 @@
 }
 
 .field {
-  display: flex;
-  flex-direction: column;
-  gap: 0.375rem;
-}
-
-.field label {
-  font-size: 0.8125rem;
-  font-weight: 600;
-  color: var(--mm-color-text-muted);
+  @include shared.mm-field-group;
 }
 
 .field input {
-  font-family: inherit;
-  font-size: 1rem;
-  color: var(--mm-color-text);
-  background: var(--mm-color-input-bg);
-  border: 1px solid var(--mm-color-border);
-  border-radius: var(--mm-radius-field);
-  padding: 0.75rem 1rem;
-  box-sizing: border-box;
-
-  &:focus {
-    outline: none;
-    border-color: var(--mm-color-primary);
-    box-shadow: 0 0 0 3px rgba(124, 34, 66, 0.15);
-  }
+  @include shared.mm-form-field-input;
 }
 
 .field-error,
 .form-error {
-  color: var(--mm-color-primary-dark);
-  font-size: 0.8125rem;
-  margin: 0;
+  @include shared.mm-field-error;
 }
 
 .login-form__submit {
-  margin-top: 0.5rem;
-  border: none;
-  border-radius: var(--mm-radius-pill);
-  background: var(--mm-color-primary);
-  color: #ffffff;
-  font-family: inherit;
-  font-size: 1rem;
-  font-weight: 600;
-  padding: 0.875rem 1.5rem;
-  cursor: pointer;
-  transition: background-color 0.15s ease;
-
-  &:hover {
-    background: var(--mm-color-primary-dark);
-  }
-
-  &:focus-visible {
-    outline: 2px solid var(--mm-color-primary-dark);
-    outline-offset: 2px;
-  }
+  @include shared.mm-pill-button;
 }

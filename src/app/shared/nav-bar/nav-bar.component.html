@@ -1,0 +1,19 @@
+<nav class="nav-bar">
+  <div class="nav-bar__brand">
+    <span class="nav-bar__logo" aria-hidden="true"></span>
+    <span class="nav-bar__wordmark">MoneyMonkey</span>
+  </div>
+
+  <div class="nav-bar__links">
+    <a class="nav-bar__link" routerLink="/transactions" routerLinkActive="nav-bar__link--active">
+      Transações
+    </a>
+    <a class="nav-bar__link" routerLink="/categories" routerLinkActive="nav-bar__link--active">
+      Categorias
+    </a>
+  </div>
+
+  <button type="button" class="nav-bar__logout" aria-label="Sair" (click)="onLogout()">
+    Sair
+  </button>
+</nav>

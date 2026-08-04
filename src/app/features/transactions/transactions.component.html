@@ -2,7 +2,9 @@
   <section class="transactions-list card">
     <h1 class="transactions-list__title">Transações</h1>
 
-    @if (listError) {
+    @if (isLoadingList && transactions.length === 0) {
+      <p class="loading-state">Carregando...</p>
+    } @else if (listError) {
       <p class="list-error" role="alert">{{ listError }}</p>
     } @else if (!isLoadingList && transactions.length === 0) {
       <p class="empty-state">Nenhuma transação cadastrada ainda</p>
@@ -14,8 +16,9 @@
             <div class="transaction-item__info">
               <span class="transaction-item__name">{{ transaction.transactionName }}</span>
               @if (transaction.categoryId != null || transaction.transactionDate) {
+                @let catName = categoryName(transaction);
                 <span class="transaction-item__meta">
-                  {{ transaction.categoryId }}{{ transaction.categoryId != null && transaction.transactionDate ? ' · ' : '' }}{{ transaction.transactionDate }}
+                  {{ catName }}{{ catName && transaction.transactionDate ? ' · ' : '' }}{{ transaction.transactionDate | date:'dd/MM/yyyy' }}
                 </span>
               }
             </div>
@@ -24,7 +27,7 @@
               [class.transaction-item__value--positive]="transaction.type === TransactionType.Entrada"
               [class.transaction-item__value--negative]="transaction.type === TransactionType.Saida"
             >
-              {{ transactionSign(transaction) }}{{ transaction.value }}
+              {{ transactionSign(transaction) }} {{ transaction.value | currency:'BRL' }}
             </span>
           </li>
         }
