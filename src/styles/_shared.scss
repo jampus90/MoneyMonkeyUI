@@ -60,6 +60,48 @@
   margin: 0;
 }
 
+// Contêiner de página das 4 telas de conteúdo (transactions/categories/
+// credit-cards/credit-card-detail). Caso base = mobile/tablet (< $desktop-breakpoint),
+// idêntico ao bloco hoje duplicado byte a byte nos 4 `.component.scss`. A partir de
+// $desktop-breakpoint, amplia o contêiner e troca o empilhamento em coluna por um
+// grid de duas colunas (lista/fatura na coluna maior, formulário na menor), conforme
+// UX-5. Não usado por `login.component.scss` (fora de escopo, ver UX-5).
+@mixin mm-page-shell($desktop-max-width: 1180px, $desktop-breakpoint: 960px) {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  padding: 2rem 1rem;
+  background: var(--mm-color-bg);
+  box-sizing: border-box;
+
+  @media (min-width: $desktop-breakpoint) {
+    max-width: $desktop-max-width;
+    margin: 0 auto;
+    padding: 2.5rem 2rem;
+    display: grid;
+    grid-template-columns: 1.4fr 1fr;
+    gap: 1.5rem;
+    align-items: start;
+  }
+}
+
+// Largura do `.card` das 4 telas de conteúdo (distinto de `mm-card-base`, que cobre
+// só o subconjunto visual sem largura, compartilhado com `.login-card`). Caso base =
+// mobile/tablet, idêntico ao bloco hoje duplicado (`width/max-width/margin`). A partir
+// de $desktop-breakpoint, relaxa o limite para o card preencher a coluna do grid de
+// `mm-page-shell` em vez de ficar travado em $max-width dentro dela.
+@mixin mm-card-width($max-width: 480px, $desktop-breakpoint: 960px) {
+  width: 100%;
+  max-width: $max-width;
+  margin: 0 auto;
+
+  @media (min-width: $desktop-breakpoint) {
+    max-width: none;
+    margin: 0;
+  }
+}
+
 // Botão pill de submit, idêntico em todas as propriedades entre as três telas.
 @mixin mm-pill-button {
   margin-top: 0.5rem;

@@ -1,11 +1,17 @@
 import { TestBed, ComponentFixture } from '@angular/core/testing';
 import { HttpErrorResponse } from '@angular/common/http';
+import { provideRouter } from '@angular/router';
+import { LOCALE_ID } from '@angular/core';
+import { registerLocaleData } from '@angular/common';
+import localePt from '@angular/common/locales/pt';
 import { of, throwError, Subject } from 'rxjs';
 
 import { CreditCardsComponent } from './credit-cards.component';
 import { CreditCardService } from '../../core/services/credit-card.service';
 import { CreditCardResponse } from '../../core/models/credit-card.model';
 import { CardBrand } from '../../core/models/enums.model';
+
+registerLocaleData(localePt);
 
 describe('CreditCardsComponent', () => {
   let fixture: ComponentFixture<CreditCardsComponent>;
@@ -42,7 +48,11 @@ describe('CreditCardsComponent', () => {
 
     await TestBed.configureTestingModule({
       imports: [CreditCardsComponent],
-      providers: [{ provide: CreditCardService, useValue: creditCardServiceSpy }]
+      providers: [
+        { provide: CreditCardService, useValue: creditCardServiceSpy },
+        { provide: LOCALE_ID, useValue: 'pt-BR' },
+        provideRouter([])
+      ]
     }).compileComponents();
 
     fixture = TestBed.createComponent(CreditCardsComponent);
@@ -105,11 +115,20 @@ describe('CreditCardsComponent', () => {
     expect(rows[0]).toContain('1234');
     expect(rows[0]).toContain('10');
     expect(rows[0]).toContain('17');
-    expect(rows[0]).toContain('5000');
+    expect(rows[0]).toContain('5.000,00');
 
     expect(rows[1]).toContain('Inter');
     expect(rows[1]).toContain('Visa');
     expect(rows[1]).toContain('5678');
+  });
+
+  it('UX-6 criterio 7: creditLimit e exibido via CurrencyPipe (BRL), sem o valor cru no DOM', () => {
+    setupWithList([nubankCard]);
+
+    const rows = rowsText();
+    expect(rows[0]).not.toContain('5000');
+    expect(rows[0]).toContain('R$');
+    expect(rows[0]).toContain('5.000,00');
   });
 
   it('criterio 1 (caso de borda): creditLimit ausente na resposta nao e exibido na linha do cartao', () => {
@@ -311,6 +330,18 @@ describe('CreditCardsComponent', () => {
     expect(networkErrorMessage).not.toBe(badRequestMessage);
     expect(component.form.controls.name.value).toBe('Nubank');
     expect(component.creditCards.length).toBe(0);
+  });
+
+  // --- MVP-5: link "Ver fatura" ---
+
+  it('MVP-5: cada item da listagem tem um link "Ver fatura" apontando para /credit-cards/:creditCardId', () => {
+    setupWithList([nubankCard, interCard]);
+
+    const links: HTMLAnchorElement[] = Array.from(fixture.nativeElement.querySelectorAll('.credit-card-item a'));
+    expect(links.length).toBe(2);
+    expect(links[0].textContent).toContain('Ver fatura');
+    expect(links[0].getAttribute('href')).toBe('/credit-cards/1');
+    expect(links[1].getAttribute('href')).toBe('/credit-cards/2');
   });
 
   // --- Casos de borda ---

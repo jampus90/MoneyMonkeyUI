@@ -5,6 +5,8 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { AbstractControl, FormBuilder, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
+import { RouterLink } from '@angular/router';
+import { CurrencyPipe } from '@angular/common';
 
 import { CreditCardService } from '../../core/services/credit-card.service';
 import { CreditCardRequest, CreditCardResponse } from '../../core/models/credit-card.model';
@@ -71,7 +73,7 @@ function dayRangeValidator(control: AbstractControl): ValidationErrors | null {
 @Component({
   selector: 'app-credit-cards',
   standalone: true,
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, RouterLink, CurrencyPipe],
   templateUrl: './credit-cards.component.html',
   styleUrl: './credit-cards.component.scss'
 })

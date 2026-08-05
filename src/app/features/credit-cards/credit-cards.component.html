@@ -21,9 +21,10 @@
                 Fecha dia {{ creditCard.closingDay }} · Vence dia {{ creditCard.dueDay }}
               </span>
               @if (creditCard.creditLimit != null) {
-                <span class="credit-card-item__meta">Limite: {{ creditCard.creditLimit }}</span>
+                <span class="credit-card-item__meta">Limite: {{ creditCard.creditLimit | currency:'BRL' }}</span>
               }
             </div>
+            <a [routerLink]="['/credit-cards', creditCard.creditCardId]" class="credit-card-item__link">Ver fatura</a>
           </li>
         }
       </ul>

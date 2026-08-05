@@ -1,0 +1,121 @@
+<div class="credit-card-detail-page">
+  <section class="invoice card">
+    <a routerLink="/credit-cards" class="invoice__back-link">&laquo; Voltar aos cartões</a>
+
+    <div class="invoice__nav">
+      <button type="button" class="invoice-nav__prev" (click)="previousMonth()" [disabled]="!invoice">
+        &laquo; Mês anterior
+      </button>
+      <h1 class="invoice__title">
+        @if (creditCard) {
+          {{ creditCard.name }} · {{ brandLabel(creditCard) }} · •••• {{ creditCard.lastFourDigits }}
+        } @else {
+          Fatura
+        }
+      </h1>
+      <button type="button" class="invoice-nav__next" (click)="nextMonth()" [disabled]="!invoice">
+        Próximo mês &raquo;
+      </button>
+    </div>
+
+    @if (isLoadingInvoice && !invoice) {
+      <p class="loading-state">Carregando...</p>
+    } @else if (invoiceError) {
+      <p class="invoice-error" role="alert">{{ invoiceError }}</p>
+    } @else if (invoice) {
+      <div class="invoice__summary">
+        <span>Mês/Ano: {{ invoice.invoiceMonth }}/{{ invoice.invoiceYear }}</span>
+        <span>Vencimento: {{ invoice.dueDate | date:'dd/MM/yyyy' }}</span>
+        <span>Total: {{ invoice.totalValue | currency:'BRL' }}</span>
+      </div>
+
+      @if (invoice.installments.length === 0) {
+        <p class="invoice-empty">Nenhuma compra nesta fatura</p>
+      } @else {
+        <div class="installment-list__header">
+          <span>Descrição</span>
+          <span>Parcela</span>
+          <span>Valor</span>
+          <span>Data</span>
+        </div>
+        <ul class="installment-list">
+          @for (installment of invoice.installments; track installment.creditCardInstallmentId) {
+            <li class="installment-item">
+              <span class="installment-item__description">{{ installment.description }}</span>
+              <span class="installment-item__installments">{{ installmentLabel(installment) }}</span>
+              <span class="installment-item__value">{{ installment.value | currency:'BRL' }}</span>
+              <span class="installment-item__date">{{ installment.purchaseDate | date:'dd/MM/yyyy' }}</span>
+              @if (installment.isSubscription) {
+                <span class="installment-item__subscription">Assinatura</span>
+              }
+            </li>
+          }
+        </ul>
+      }
+    }
+  </section>
+
+  <section class="purchase-form card">
+    <h2 class="purchase-form__title">Nova compra</h2>
+
+    <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
+      <div class="field">
+        <label for="purchase-description">Descrição</label>
+        <input id="purchase-description" type="text" formControlName="description" maxlength="101" />
+        @if (form.controls.description.hasError('required') && form.controls.description.touched) {
+          <span class="field-error">Descrição é obrigatória</span>
+        }
+        @if (form.controls.description.hasError('maxlength') && form.controls.description.touched) {
+          <span class="field-error">Descrição deve ter no máximo 100 caracteres</span>
+        }
+      </div>
+
+      <div class="field">
+        <label for="purchase-total-value">Valor total</label>
+        <input id="purchase-total-value" type="text" formControlName="totalValue" inputmode="decimal" />
+        @if (form.controls.totalValue.hasError('required') && form.controls.totalValue.touched) {
+          <span class="field-error">Valor é obrigatório</span>
+        }
+        @if (form.controls.totalValue.hasError('notPositive') && form.controls.totalValue.touched) {
+          <span class="field-error">Valor deve ser maior que zero</span>
+        }
+      </div>
+
+      <div class="field">
+        <label for="purchase-date">Data da compra (opcional)</label>
+        <input id="purchase-date" type="date" formControlName="purchaseDate" />
+      </div>
+
+      <div class="field">
+        <label for="purchase-installments">Nº de parcelas (opcional)</label>
+        <input id="purchase-installments" type="text" formControlName="installmentsCount" inputmode="numeric" />
+        @if (form.controls.installmentsCount.hasError('outOfRange') && form.controls.installmentsCount.touched) {
+          <span class="field-error">Deve estar entre 1 e 48</span>
+        }
+      </div>
+
+      <div class="field">
+        <label for="purchase-category">Categoria (opcional)</label>
+        <select id="purchase-category" formControlName="categoryId">
+          <option [ngValue]="null">Nenhuma</option>
+          @for (category of categories; track category.categoryId) {
+            <option [ngValue]="category.categoryId">{{ category.name }}</option>
+          }
+        </select>
+      </div>
+
+      <div class="field field--checkbox">
+        <label for="purchase-is-subscription">
+          <input id="purchase-is-subscription" type="checkbox" formControlName="isSubscription" />
+          Assinatura
+        </label>
+      </div>
+
+      @if (createError) {
+        <p class="form-error" role="alert">{{ createError }}</p>
+      }
+
+      <button type="submit" class="purchase-form__submit">Registrar compra</button>
+    </form>
+  </section>
+</div>

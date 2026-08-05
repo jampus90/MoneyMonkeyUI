@@ -1,21 +1,13 @@
 @use '../../../styles/shared' as shared;
 
 .categories-page {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-  padding: 2rem 1rem;
-  background: var(--mm-color-bg);
-  box-sizing: border-box;
+  @include shared.mm-page-shell;
 }
 
 .card {
   @include shared.mm-card-base;
-  width: 100%;
-  max-width: 480px;
-  margin: 0 auto;
   padding: 1.75rem 1.5rem;
+  @include shared.mm-card-width;
 }
 
 .categories-list__title,

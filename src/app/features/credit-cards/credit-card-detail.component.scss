@@ -1,0 +1,160 @@
+@use '../../../styles/shared' as shared;
+
+.credit-card-detail-page {
+  @include shared.mm-page-shell;
+}
+
+.card {
+  @include shared.mm-card-base;
+  padding: 1.75rem 1.5rem;
+  @include shared.mm-card-width;
+}
+
+.invoice__back-link {
+  display: inline-block;
+  margin-bottom: 0.75rem;
+  color: var(--mm-color-primary);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.invoice__nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+
+.invoice__title {
+  margin: 0;
+  color: var(--mm-color-text);
+  font-size: 1.125rem;
+}
+
+.invoice-nav__prev,
+.invoice-nav__next {
+  background: none;
+  border: 1px solid var(--mm-color-border);
+  border-radius: var(--mm-radius-field);
+  color: var(--mm-color-text);
+  font-family: inherit;
+  font-size: 0.8125rem;
+  padding: 0.5rem 0.75rem;
+  cursor: pointer;
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.loading-state,
+.invoice-empty,
+.invoice-error {
+  color: var(--mm-color-text-muted);
+  font-size: 0.9375rem;
+}
+
+.invoice-error {
+  color: var(--mm-color-primary-dark);
+}
+
+.invoice__summary {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  margin-bottom: 1rem;
+  font-size: 0.875rem;
+  color: var(--mm-color-text);
+}
+
+// Colunas compartilhadas entre .installment-list__header e .installment-item em
+// desktop (>= 960px) - mesma declaração nos dois seletores (criterio 12 do UX-6), nunca
+// redeclarada com um valor divergente.
+$installment-grid-columns: 2.2fr 0.9fr 1fr 1.1fr;
+
+.installment-list__header {
+  display: none;
+  padding: 0 0.25rem;
+  color: var(--mm-color-text-muted);
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+
+  @media (min-width: 960px) {
+    display: grid;
+    grid-template-columns: $installment-grid-columns;
+  }
+}
+
+.installment-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.installment-item {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.8125rem;
+  color: var(--mm-color-text);
+
+  @media (min-width: 960px) {
+    display: grid;
+    grid-template-columns: $installment-grid-columns;
+  }
+}
+
+.installment-item__description {
+  font-weight: 600;
+}
+
+.installment-item__value {
+  font-weight: 700;
+}
+
+.installment-item__subscription {
+  color: var(--mm-color-primary);
+  font-weight: 600;
+}
+
+form {
+  @include shared.mm-form-stack;
+}
+
+.field {
+  @include shared.mm-field-group;
+}
+
+.field--checkbox label {
+  flex-direction: row;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.field input,
+.field select {
+  @include shared.mm-form-field-input;
+}
+
+.field-error,
+.form-error {
+  @include shared.mm-field-error;
+}
+
+.purchase-form__submit {
+  @include shared.mm-pill-button;
+}
