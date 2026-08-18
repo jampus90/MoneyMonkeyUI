@@ -99,4 +99,44 @@ describe('AuthService', () => {
     expect(() => service.logout()).not.toThrow();
     expect(service.getToken()).toBeNull();
   });
+
+  // --- MVP-7: persistencia de LoginResponse.firstName ---
+
+  it('MVP-7 criterio 8: getFirstName retorna null quando nenhum login foi realizado', () => {
+    expect(service.getFirstName()).toBeNull();
+  });
+
+  it('MVP-7 criterio 8: login bem-sucedido persiste firstName e getFirstName passa a retorna-lo', () => {
+    service.login({ username: 'ana', password: 'senha123' }).subscribe();
+
+    const req = httpMock.expectOne(`${environment.apiBaseUrl}/api/auth/login`);
+    req.flush(loginResponse);
+
+    expect(service.getFirstName()).toBe('Ana');
+  });
+
+  it('MVP-7 criterio 8: logout remove firstName de localStorage e getFirstName volta a retornar null', () => {
+    service.login({ username: 'ana', password: 'senha123' }).subscribe();
+    const req = httpMock.expectOne(`${environment.apiBaseUrl}/api/auth/login`);
+    req.flush(loginResponse);
+
+    expect(service.getFirstName()).toBe('Ana');
+
+    service.logout();
+
+    expect(service.getFirstName()).toBeNull();
+    expect(localStorage.getItem('auth_first_name')).toBeNull();
+  });
+
+  it('nao deve persistir firstName quando a API responde 401', () => {
+    service.login({ username: 'ana', password: 'errada' }).subscribe({
+      next: () => fail('nao deveria emitir sucesso'),
+      error: (err) => expect(err.status).toBe(401)
+    });
+
+    const req = httpMock.expectOne(`${environment.apiBaseUrl}/api/auth/login`);
+    req.flush('Unauthorized', { status: 401, statusText: 'Unauthorized' });
+
+    expect(service.getFirstName()).toBeNull();
+  });
 });

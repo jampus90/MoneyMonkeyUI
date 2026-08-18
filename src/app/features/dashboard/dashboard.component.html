@@ -1,0 +1,67 @@
+<div class="dashboard-page">
+  <header class="dashboard-greeting card">
+    <span class="dashboard-greeting__mascot" aria-hidden="true"></span>
+    <div class="dashboard-greeting__text">
+      <p class="dashboard-greeting__hello">{{ greetingText }}</p>
+      <p class="dashboard-greeting__date">{{ formattedDate }}</p>
+    </div>
+  </header>
+
+  <section class="dashboard-balance card">
+    <h2 class="dashboard-balance__title">Saldo total</h2>
+    @if (isLoadingTransactions) {
+      <p class="loading-state">Carregando...</p>
+    } @else if (transactionsError) {
+      <p class="dashboard-balance__error" role="alert">{{ transactionsError }}</p>
+    } @else {
+      <p class="dashboard-balance__value">{{ saldoTotal | currency:'BRL' }}</p>
+    }
+  </section>
+
+  <section class="dashboard-cards card">
+    <h2 class="dashboard-cards__title">Cartões · limite total</h2>
+    @if (isLoadingCards) {
+      <p class="loading-state">Carregando...</p>
+    } @else if (cardsError) {
+      <p class="dashboard-cards__error" role="alert">{{ cardsError }}</p>
+    } @else {
+      <p class="dashboard-cards__count">{{ cardsCount }}</p>
+      <p class="dashboard-cards__limit">{{ cardsLimitTotal | currency:'BRL' }}</p>
+    }
+  </section>
+
+  <section class="dashboard-recent card">
+    <div class="dashboard-recent__header">
+      <h2 class="dashboard-recent__title">Transações recentes</h2>
+      <a class="dashboard-recent__link" routerLink="/transactions">ver todas</a>
+    </div>
+
+    @if (isLoadingTransactions) {
+      <p class="loading-state">Carregando...</p>
+    } @else if (transactionsError) {
+      <p class="dashboard-recent__error" role="alert">{{ transactionsError }}</p>
+    } @else if (recentTransactions.length === 0) {
+      <p class="empty-state">Nenhuma transação recente</p>
+    } @else {
+      <ul class="dashboard-recent__list">
+        @for (transaction of recentTransactions; track transaction.transactionId) {
+          <li class="dashboard-recent__item">
+            <div class="dashboard-recent__info">
+              <span class="dashboard-recent__name">{{ transaction.transactionName }}</span>
+              @if (transaction.categoryId != null) {
+                <span class="dashboard-recent__category">{{ categoryName(transaction) }}</span>
+              }
+            </div>
+            <span
+              class="dashboard-recent__value"
+              [class.dashboard-recent__value--positive]="transaction.type === TransactionType.Entrada"
+              [class.dashboard-recent__value--negative]="transaction.type === TransactionType.Saida"
+            >
+              {{ transaction.value | currency:'BRL' }}
+            </span>
+          </li>
+        }
+      </ul>
+    }
+  </section>
+</div>

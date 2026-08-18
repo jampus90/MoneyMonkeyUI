@@ -53,14 +53,14 @@ describe('LoginComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('criterio 1: login com sucesso envia LoginRequest, persiste via AuthService e redireciona', () => {
+  it('criterio 1: login com sucesso envia LoginRequest, persiste via AuthService e redireciona (MVP-7: destino /dashboard)', () => {
     authServiceSpy.login.and.returnValue(of(loginResponse));
     setFieldValues('ana', 'senha123');
 
     submit();
 
     expect(authServiceSpy.login).toHaveBeenCalledWith({ username: 'ana', password: 'senha123' });
-    expect(router.navigateByUrl).toHaveBeenCalledWith('/transactions');
+    expect(router.navigateByUrl).toHaveBeenCalledWith('/dashboard');
     expect(component.errorMessage).toBeNull();
   });
 

@@ -23,6 +23,42 @@ describe('NavBarComponent', () => {
     expect(compiled.querySelector('.nav-bar__wordmark')?.textContent).toContain('MoneyMonkey');
   });
 
+  it('MVP-7 criterio 2: deve renderizar link para Painel apontando para /dashboard', () => {
+    const fixture = TestBed.createComponent(NavBarComponent);
+    fixture.detectChanges();
+
+    const compiled = fixture.nativeElement as HTMLElement;
+    const link = compiled.querySelector('a[href="/dashboard"]');
+    expect(link?.textContent?.trim()).toBe('Painel');
+  });
+
+  it('MVP-7 criterio 2: link Painel deve vir antes do link Transações na nav', () => {
+    const fixture = TestBed.createComponent(NavBarComponent);
+    fixture.detectChanges();
+
+    const compiled = fixture.nativeElement as HTMLElement;
+    const links = Array.from(compiled.querySelectorAll('.nav-bar__link')).map((el) =>
+      el.textContent?.trim()
+    );
+
+    expect(links.indexOf('Painel')).toBeGreaterThanOrEqual(0);
+    expect(links.indexOf('Transações')).toBeGreaterThan(links.indexOf('Painel'));
+  });
+
+  it('MVP-7 criterio 2: deve marcar o link Painel como ativo quando a rota atual e /dashboard', async () => {
+    const fixture = TestBed.createComponent(NavBarComponent);
+    const router = TestBed.inject(Router);
+
+    await router.navigateByUrl('/dashboard');
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const compiled = fixture.nativeElement as HTMLElement;
+    const dashboardLink = compiled.querySelector('a[href="/dashboard"]');
+
+    expect(dashboardLink?.classList.contains('nav-bar__link--active')).toBeTrue();
+  });
+
   it('deve renderizar link para Transações apontando para /transactions', () => {
     const fixture = TestBed.createComponent(NavBarComponent);
     fixture.detectChanges();
